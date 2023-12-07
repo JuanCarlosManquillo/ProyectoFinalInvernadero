@@ -31,7 +31,7 @@ short int count = 0;
 short int trycount = 0;
 const uint8_t ROWS = 4;
 const uint8_t COLS = 4;
-short int luz = 0.0;
+int analogValue = 0 ;
 float temp = 0.0;
 int valorSensor=1;
 unsigned int startTime=0;
@@ -81,25 +81,24 @@ enum Input
  * @brief Monitorea la luz y actualiza la pantalla LCD.
  */
 void pcdMonitorLuz(){
-  lcd.setCursor(4,1);
+  lcd.setCursor(11,1);
   
-  int analogValue = analogRead(PHOTO_SENSOR);
-  float voltage = analogValue / 1024. * 5;
-  float resistance = 2000 * voltage / (1 - voltage / 5);
-  luz = pow(RL10 * 1e3 * pow(10, GAMMA) / resistance, (1 / GAMMA));
-  lcd.print(luz);
+  analogValue = analogRead(PHOTO_SENSOR);
+
+  lcd.print(analogValue);
 
 }
 /**
  * @brief Monitorea la temperatura y actualiza la pantalla LCD.
  */
 void pcdMonitorTemperatura(){
-  lcd.setCursor(2,1);
+  lcd.setCursor(6,1);
 
   int analogValue = analogRead(TEMP_SENSOR);
   temp = 1 / (log(1 / (1023. / analogValue - 1)) / BETA + 1.0 / 298.15) - 273.15;
   lcd.print(temp);
-  lcd.println(" C");
+  lcd.print("C");
+  
 }
 // Creación de una nueva instancia de la máquina de estados
 StateMachine stateMachine(6, 9);
@@ -182,7 +181,7 @@ void loop(){
       break;
     case monitorLuz:
       asyncTaskLuz.Update();     
-      if(luz < 40.0 ){ 
+      if(analogValue < 40.0 ){ 
         delay(2000);
         entrada = static_cast<Input>(Input::senLuz40);
       }
@@ -426,9 +425,9 @@ void pcdAlerta(){
  */
 void pcdLuz(){
   reiniciarLCD();
-  lcd.print("**PHOTO SENSOR**");
+  lcd.print("*PHOTORESISTSOR*");
   lcd.setCursor(0,1);
-  lcd.print("Luz:");
+  lcd.print("Photocell:");
   startTime = millis();
 }
 /**
@@ -452,7 +451,6 @@ void pcdTemp(){
   reiniciarLCD();
   lcd.print("**TEMP SENSOR**");
   lcd.setCursor(0,1);
-  lcd.print("T:");
+  lcd.print("Temp: ");
   startTime = millis();
 }
-
